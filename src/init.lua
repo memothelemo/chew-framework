@@ -13,6 +13,7 @@ type ChewTableMarker = any;
 
 local pathMarkers: Map<any, Instance> = {}
 local attachedTableMarkers: Map<any, Array<TableMarker>> = {}
+local locallyCreatedTables: Map<string, any> = {}
 
 -- Chew functions --
 function Chew.import(marker: ChewPathMarker, ...: string): Instance
@@ -132,6 +133,10 @@ function Chew.createSingleton<T>(initial: T?, ignitable: boolean?): T
 	return Chew.table(initial, 1)
 end
 
+function Chew.getLocallyCreatedTables(): { [string]: any }
+	return locallyCreatedTables
+end
+
 function Chew.table<T>(initial: T?, depth: number?): T
 	assert(type(initial) == "table" or initial == nil, "Expected table or nil")
 	assert(type(depth) == "number" or depth == nil, "Expected depth to be number or nil")
@@ -142,6 +147,7 @@ function Chew.table<T>(initial: T?, depth: number?): T
 	assert(creator, "Unknown creator source")
 
 	-- initialize table markers
+	locallyCreatedTables[creator] = initial
 	for marker in pairs(attachedTableMarkers) do
 		if initial[marker] ~= nil then
 			local info: TableMarker = { creator = creator, value = initial }
